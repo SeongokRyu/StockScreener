@@ -19,22 +19,23 @@ from libs.utils import clean_stock_list
 from libs.utils import filter_by_market_cap
 
 
-def update_stock_list():
+def update_stock_list(date):
 	market_list = ['KOSPI', 'KOSDAQ']
 	df_list = [get_stock_list(market) for market in market_list]
 	df_market = pd.concat(df_list)
 
-	market_path = os.path.join(os.getcwd(), 'data', 'stocks_all.csv')
+	market_path = os.path.join(os.getcwd(), 'data', 'stocks', date+'_all.csv')
 	save_df(market_path, index=False)
 
 	df_clean = filter_stock_list(df_market)
-	clean_path = os.path.join(os.getcwd(), 'data', 'stocks_clean.csv')
+	clean_path = os.path.join(os.getcwd(), 'data', 'stocks', date+'_clean.csv')
 	save_df(clean_path, index=False)
 
 
 def update_financial_highlight(
 		df,
 		date,
+		interval=0.5,
 	):
 	df["Code"] = df["Code"].astype(str).str.zfill(6)
 	df = df[:5]
@@ -56,10 +57,11 @@ def update_financial_highlight(
 			fics_list.append(fics)
 
 		print (code, "\t", name, " -- Financial highlight updated")
-		time.sleep(0.3)
+		time.sleep(interval)
 
 	df["FICS"] = fics_list
-	save_df(df, "stocks_tmp")
+	fics_path = os.path.join(os.getcwd(), 'data', 'stocks', date+'_fics.csv')
+	save_df(fics_path, index=False)
 
 
 def update_price(
@@ -73,7 +75,7 @@ def update_price(
 
 	df_price = fdr.DataReader(inp, date) 
 	df_price.to_csv(os.path.join(
-		os.getcwd(), 'data', 'price', date, 'stock_price.csv'
+		os.getcwd(), 'data', 'price', date+'.csv'
 	))
 
 
@@ -102,7 +104,7 @@ def main(args):
 
 	if args.update_highlight:
 		update_financial_highlight(
-			df=df_stocks, date=today
+			df=df_stocks, date=today, interval=args.sleep_interval,
 		)
 
 
@@ -113,6 +115,7 @@ if __name__ == '__main__':
 	parser.add_argument("--update_highlight", action="store_true")
 
 	parser.add_argument("--market_cap_threshold", type=int, default=500)
+	parser.add_argument("--sleep_interval", type=float, default=0.5)
 	args = parser.parse_args()
 
 	main(args)

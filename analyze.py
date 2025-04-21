@@ -114,7 +114,7 @@ def main(args):
 	)
 	df_stocks = df_stocks[:5]
 
-	price_path = os.path.join(os.getcwd(), 'data', 'price', today, 'stock_price.csv')
+	price_path = os.path.join(os.getcwd(), 'data', 'price', today+'.csv')
 	df_price = pd.read_csv(price_path)
 
 	create_summary(

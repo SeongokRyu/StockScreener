@@ -5,8 +5,9 @@ import pandas as pd
 
 def create_directories(date):
 	dir_list = [
+		os.path.join(os.getcwd(), 'data', 'stocks'),
 		os.path.join(os.getcwd(), 'data', 'financial_highlight', date),
-		os.path.join(os.getcwd(), 'data', 'price', date),
+		os.path.join(os.getcwd(), 'data', 'price'),
 		os.path.join(os.getcwd(), 'data', 'summary'),
 		os.path.join(os.getcwd(), 'data', 'screen_results'),
 	]

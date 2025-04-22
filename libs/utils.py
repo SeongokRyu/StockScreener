@@ -7,6 +7,7 @@ def create_directories(date):
 	dir_list = [
 		os.path.join(os.getcwd(), 'data', 'stocks'),
 		os.path.join(os.getcwd(), 'data', 'financial_highlight', date),
+		os.path.join(os.getcwd(), 'data', 'financial_highlight', 'recent'),
 		os.path.join(os.getcwd(), 'data', 'price'),
 		os.path.join(os.getcwd(), 'data', 'summary'),
 		os.path.join(os.getcwd(), 'data', 'screen_results'),
@@ -14,17 +15,6 @@ def create_directories(date):
 	for dir_ in dir_list:
 		if not os.path.exists(dir_):
 			os.makedirs(dir_)
-
-
-def save_df(df, dir_, filename):
-	csv_path = os.path.join(dir_, filename+'.csv')
-	df.to_csv(csv_path, index=False)
-
-
-def read_df(dir_, filename):
-	csv_path = os.path.join(os.getcwd(), 'data', filename+'.csv')
-	df = pd.read_csv(csv_path)
-	return df
 
 
 def filter_by_market_cap(df, threshold=1000):

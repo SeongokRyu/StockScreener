@@ -12,8 +12,6 @@ import FinanceDataReader as fdr
 from libs.scrapper import get_stock_list
 from libs.scrapper import fetch_fics_and_highlight
 
-from libs.utils import read_df
-from libs.utils import save_df
 from libs.utils import create_directories
 from libs.utils import clean_stock_list
 from libs.utils import filter_by_market_cap
@@ -25,11 +23,15 @@ def update_stock_list(date):
 	df_market = pd.concat(df_list)
 
 	market_path = os.path.join(os.getcwd(), 'data', 'stocks', date+'_all.csv')
-	save_df(market_path, index=False)
+	df_market.to_csv(market_path, index=False)
+	market_path = os.path.join(os.getcwd(), 'data', 'stocks', 'recent_all.csv')
+	df_market.to_csv(market_path, index=False)
 
 	df_clean = filter_stock_list(df_market)
 	clean_path = os.path.join(os.getcwd(), 'data', 'stocks', date+'_clean.csv')
-	save_df(clean_path, index=False)
+	df_clean.to_csv(clean_path, index=False)
+	clean_path = os.path.join(os.getcwd(), 'data', 'stocks', 'recent_clean.csv')
+	df_clean.to_csv(clean_path, index=False)
 
 
 def update_financial_highlight(
@@ -38,7 +40,6 @@ def update_financial_highlight(
 		interval=0.5,
 	):
 	df["Code"] = df["Code"].astype(str).str.zfill(6)
-	df = df[:5]
 	code_list = list(df["Code"])
 	name_list = list(df["Name"])
 	fics_list = []
@@ -52,6 +53,10 @@ def update_financial_highlight(
 				os.getcwd(), 'data', 'financial_highlight', date, code+'.csv'
 			)
 			highlight.to_csv(highlight_path, index=True)
+			highlight_path = os.path.join(
+				os.getcwd(), 'data', 'financial_highlight', 'recent', code+'.csv'
+			)
+			highlight.to_csv(highlight_path, index=True)
 		except:
 			fics = ""
 			fics_list.append(fics)
@@ -61,7 +66,9 @@ def update_financial_highlight(
 
 	df["FICS"] = fics_list
 	fics_path = os.path.join(os.getcwd(), 'data', 'stocks', date+'_fics.csv')
-	save_df(fics_path, index=False)
+	df.to_csv(fics_path, index=False)
+	fics_path = os.path.join(os.getcwd(), 'data', 'stocks', 'recent_fics.csv')
+	df.to_csv(fics_path, index=False)
 
 
 def update_price(
@@ -69,14 +76,14 @@ def update_price(
 		date,
 	):
 	df["Code"] = df["Code"].astype(str).str.zfill(6)
-	df = df[:5]
 	code_list = list(df["Code"])
 	inp = ','.join(code_list)
 
 	df_price = fdr.DataReader(inp, date) 
-	df_price.to_csv(os.path.join(
-		os.getcwd(), 'data', 'price', date+'.csv'
-	))
+	price_path = os.path.join(os.getcwd(), 'data', 'price', date+'.csv')
+	df_price.to_csv(price_path)
+	price_path = os.path.join(os.getcwd(), 'data', 'price', 'recent.csv')
+	df_price.to_csv(price_path)
 
 
 def main(args):
@@ -88,10 +95,10 @@ def main(args):
 	create_directories(date=today)
 
 	if args.update_list:
-		update_stock_list()
+		update_stock_list(today)
 
-	clean_path = os.path.join(os.getcwd(), 'data', 'stocks_clean.csv')
-	df_stocks = read_df(clean_path)
+	clean_path = os.path.join(os.getcwd(), 'data', 'stocks', 'recent_clean.csv')
+	df_stocks = pd.read_csv(clean_path)
 	df_stocks = filter_by_market_cap(
 		df=df_stocks,
 		threshold=args.market_cap_threshold

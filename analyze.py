@@ -12,7 +12,6 @@ from tabulate import tabulate
 from libs.calculator import get_ratio
 from libs.calculator import get_growth
 
-from libs.utils import read_df
 from libs.utils import filter_by_market_cap
 from libs.utils import create_directories
 
@@ -69,34 +68,54 @@ def create_summary(
 	df_stocks["Code"] = df_stocks["Code"].astype(str).str.zfill(6)
 	code_list = df_stocks["Code"]
 	name_list = df_stocks["Name"]
+	marcap_list = df_stocks["Marcap"]
 	summary_list = []
 	for k in range(len(df_stocks)):
-		code = code_list[k]
-		name = name_list[k]
-		price = df_price[code].iloc[0]
+		try:
+			code = code_list[k]
+			name = name_list[k]
+			marcap = int(marcap_list[k])
+			price = df_price[code].iloc[0]
+			print (code, ", ", name, ": Create summary")
 
-		highlight_path = os.path.join(os.getcwd(), 'data', 'financial_highlight', code+'.csv')
-		df_highlight = pd.read_csv(highlight_path)
+			highlight_path = os.path.join(os.getcwd(), 'data', 'financial_highlight', 'recent', code+'.csv')
+			if not os.path.exists(highlight_path):
+				print (code, ", ", name, ": Financial highlight does not exist")
+				continue
+			df_highlight = pd.read_csv(highlight_path)
 
-		summary = [
-			date, code, name, int(price), 
-		]
-		result = summarize_per_stock(
-			df=df_highlight, price=price
-		)
-		summary += result
-		summary_list.append(summary)
+			summary = [
+				date, code, name, marcap, int(price), 
+				df_highlight.iloc[0].iloc[3], df_highlight.iloc[1].iloc[3], df_highlight.iloc[2].iloc[3],
+				df_highlight.iloc[0].iloc[4], df_highlight.iloc[1].iloc[4], df_highlight.iloc[2].iloc[4],
+			]
+			result = summarize_per_stock(
+				df=df_highlight, price=price
+			)
+			summary += result
+			summary_list.append(summary)
+		except:
+			print (code, ", ", name, ": Error occured when executing summary")
 
 	columns = [
-		'Date', 'Code', 'Name', 'Price',
+		'Date', 'Code', 'Name', 'MarketCap', 'Price',
+		'Sales (2024)', 'OpIncome (2024)', 'NetIncome (2024)',
+		'Sales (2025)', 'OpIncome (2025)', 'NetIncome (2025)',
 		'FY-PER', 'FY-PBR', 'FY-ROE',
 		'FY-SalesGrowth', 'FY-OpGrowth', 'FY-NetGrowth',
 		'DivYield', 'DivPayout',
 	]
 	df_summary = pd.DataFrame(summary_list, columns=columns)
+
+	df_summary = df_summary.dropna(subset=['FY-PER', 'FY-PBR'])
 	summary_path = os.path.join(os.getcwd(), 'data', 'summary', date+'.csv')
 	df_summary.to_csv(summary_path, index=False)
 	print (tabulate(df_summary, headers='keys', showindex=True))
+	return df_summary
+
+
+def screen_summary(df):
+	return 
 
 
 def main(args):
@@ -107,20 +126,24 @@ def main(args):
 
 	create_directories(date=today)
 
-	df_stocks = read_df('stocks_clean')
+	stocks_path = os.path.join(os.getcwd(), 'data', 'stocks', 'recent_clean.csv')
+	df_stocks = pd.read_csv(stocks_path)
 	df_stocks = filter_by_market_cap(
 		df=df_stocks,
 		threshold=args.market_cap_threshold
 	)
-	df_stocks = df_stocks[:5]
 
-	price_path = os.path.join(os.getcwd(), 'data', 'price', today+'.csv')
+	price_path = os.path.join(os.getcwd(), 'data', 'price', 'recent.csv')
 	df_price = pd.read_csv(price_path)
 
-	create_summary(
+	df_summary = create_summary(
 		df_stocks=df_stocks,
 		df_price=df_price,
 		date=today,
+	)	
+
+	screen_summary(
+		df=df_summary,
 	)
 
 

@@ -1,0 +1,26 @@
+계정,2022/12,2023/12,2024/12,2025/12(E),2024/06,2024/09,2024/12,2025/03(E)
+Sales,597.0,1005.0,685.0,nan,119.0,188.0,244.0,nan
+Operating Income,24.0,1.0,-45.0,nan,-14.0,-9.0,-12.0,nan
+Oper.Income(Rep.),24.0,1.0,-45.0,nan,-14.0,-9.0,-12.0,nan
+Net Income,21.0,-5.0,-70.0,nan,-14.0,-4.0,-42.0,nan
+Net Income(Contr.),21.0,-5.0,-70.0,nan,-14.0,-3.0,-42.0,nan
+Net Income(Minor.),nan,nan,-1.0,nan,nan,-0.0,-0.0,nan
+Total Assets,700.0,752.0,682.0,nan,656.0,643.0,682.0,nan
+Total Liabilities,221.0,272.0,274.0,nan,204.0,191.0,274.0,nan
+Total Equity,479.0,480.0,408.0,nan,453.0,452.0,408.0,nan
+Net Income(Contr.),479.0,480.0,406.0,nan,453.0,449.0,406.0,nan
+Net Income(Minor.),0.0,0.0,2.0,nan,0.0,3.0,2.0,nan
+Capital Stock,41.0,41.0,41.0,nan,41.0,41.0,41.0,nan
+Total Debt/Equity,46.09,56.68,67.05,nan,45.04,42.23,67.05,nan
+Reserve Ratio,1055.59,1058.74,879.16,nan,992.12,983.91,879.16,nan
+Oper.Income Margin,3.95,0.13,-6.64,nan,-11.96,-4.71,-4.88,nan
+Net Income Margin,3.47,-0.46,-10.16,nan,-11.67,-1.81,-17.23,nan
+ROA,3.29,-0.64,-9.79,nan,-8.45,-2.23,-25.62,nan
+ROE,4.46,-0.96,-15.7,nan,-12.04,-3.02,-39.29,nan
+EPS(KRW),250.0,-56.0,-839.0,nan,-168.0,-41.0,-507.0,nan
+BPS(KRW),5778.0,5794.0,4896.0,nan,5461.0,5420.0,4896.0,nan
+DPS(KRW),nan,nan,nan,nan,nan,nan,nan,nan
+PER,31.72,nan,nan,nan,nan,nan,nan,nan
+PBR,1.37,1.49,1.37,nan,2.59,1.67,1.37,nan
+Issued Shares,8289.0,8289.0,8289.0,nan,8289.0,8289.0,8289.0,nan
+Div Yield,nan,nan,nan,nan,nan,nan,nan,nan

@@ -1,4 +1,23 @@
 import numpy as np
+import pandas as pd
+
+
+def calc_price_change(
+		df,
+		interval
+	):
+	p1 = np.asarray(df.iloc[-1])[1:]
+	if interval > len(df):
+		p0 = np.asarray(df.iloc[0])[1:]
+	else:
+		p0 = np.asarray(df.iloc[-1-interval])[1:]
+	change = ((p1 - p0)/p0*100.0)
+	
+	columns = list(df.columns)
+	new = ['Change']
+	new += [round(val, 2) for val in change] 
+	df_ = pd.DataFrame([new], columns=columns)
+	return df_
 
 
 def get_ratio(

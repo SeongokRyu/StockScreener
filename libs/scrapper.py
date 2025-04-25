@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 import FinanceDataReader as fdr
 
 
-def get_stock_list(market: str):
+def crawling_stock_list(market: str):
 	df = fdr.StockListing(market)
 	return df
 

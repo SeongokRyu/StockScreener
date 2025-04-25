@@ -1,4 +1,4 @@
-Code,ISU_CD,Name,Market,Dept,Close,ChangeCode,Changes,ChagesRatio,Open,High,Low,Volume,Amount,Marcap,Stocks,MarketId,FICS
+Code,ISU_CD,Name,Market,Dept,Close,ChangeCode,Changes,ChagesRatio,Open,High,Low,Volume,Amount,Marcap,Stocks,MarketId,Sector
 005930,KR7005930003,삼성전자,KOSPI,,55400,1,100,0.18,55200,56000,55100,4231658,234771094550,3279479,5919637922,STK,Semiconductors & Semiconductor Equipment
 000660,KR7000660001,SK하이닉스,KOSPI,,177000,1,2000,1.14,174800,180000,174500,1450736,257597094700,1288564,728002365,STK,Semiconductors & Semiconductor Equipment
 373220,KR7373220003,LG에너지솔루션,KOSPI,,335500,2,-2500,-0.74,337000,340500,334500,48991,16504187500,785070,234000000,STK,Electtronic Equipment & Instruments

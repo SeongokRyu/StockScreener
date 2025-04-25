@@ -24,9 +24,23 @@ def curate_answer(answer_list):
 					code, name, sector
 				])
 	df = pd.DataFrame(contents, columns=['Code', 'Name', 'Sector'])
+	return df
 
-	sector_path = os.path.join(os.getcwd(), 'data', 'stocks_sector.csv')
-	df.to_csv(sector_path, index=False)
+
+def merge_stocks_and_sector(
+		df_stocks,
+		df_sector,
+	):
+	df_stocks["Code"] = df_stocks["Code"].astype(str).str.zfill(6)
+	df_sector["Code"] = df_sector["Code"].astype(str).str.zfill(6)
+
+	code_list = list(df_stocks["Code"])
+	marcap_list = list(df_stocks["Marcap"])
+	
+	condition = df_sector['Code'].isin(code_list)
+	df_merged = df_sector[condition]
+	df_merged["Marcap"] = marcap_list
+	return df_merged
 
 
 def main(args):
@@ -58,17 +72,30 @@ def main(args):
 		)
 		answer = run_gemini(
 			contents=gemini_input,
-			api_key=API_KEY,
+			api_key=args.api_key,
 		)
 		print (answer)
 		answer_list.append(answer)
 		time.sleep(args.sleep_interval)
 
-	curate_answer(answer_list)
+	df_sector = curate_answer(answer_list)
+
+	df_merged = merge_stocks_and_sector(
+		df_stocks=df_stocks,
+		df_sector=df_sector,
+	)
+
+	sector_path = os.path.join(os.getcwd(), 'data', 'stocks_sector.csv')
+	df_merged.to_csv(sector_path, index=False)
 	
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
+	parser.add_argument("--api_key", type=str, required=True)
+
+	parser.add_argument("--update_list", action="store_true")
+
+	parser.add_argument("--market_cap_threshold", type=int, default=500)
 	parser.add_argument("--num_unit", type=int, default=50)
 	parser.add_argument("--sleep_interval", type=float, default=1.0)
 	args = parser.parse_args()

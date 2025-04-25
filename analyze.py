@@ -75,7 +75,7 @@ def create_summary(
 			code = code_list[k]
 			name = name_list[k]
 			marcap = int(marcap_list[k])
-			price = df_price[code].iloc[0]
+			price = df_price[code].iloc[-1]
 			print (code, ", ", name, ": Create summary")
 
 			highlight_path = os.path.join(os.getcwd(), 'data', 'financial_highlight', 'recent', code+'.csv')

@@ -101,9 +101,22 @@ def add_sector_column(df_stocks):
 	code_sector = get_code_list(df_sector)
 	code_merged = list(set(code_stocks) & set(code_sector))
 
+	df_stocks['Code'] = code_stocks
+	df_sector['Code'] = code_sector
+
+	columns = [
+		'Code', 'ISU_CD', 'Name', 'Market', 'Dept', 
+		'Close', 'ChangeCode', 'Changes', 'ChagesRatio', 
+		'Open', 'High', 'Low', 'Volume', 
+		'Amount', 'Marcap', 
+		'Stocks', 'MarketId', 'Sector',
+	]
+	df_stocks = df_stocks[columns]
+
 	df_stocks = df_stocks[df_stocks['Code'].isin(code_merged)].sort_values(by=['Code']).reset_index()
 	df_sector = df_sector[df_sector['Code'].isin(code_merged)].sort_values(by=['Code']).reset_index()
 
+	df_stocks = df_stocks[columns]
 	sector_list = df_sector['Sector']
 	df_stocks['Sector'] = sector_list
 	return df_stocks

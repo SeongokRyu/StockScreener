@@ -68,12 +68,14 @@ def create_summary(
 	df_stocks["Code"] = df_stocks["Code"].astype(str).str.zfill(6)
 	code_list = df_stocks["Code"]
 	name_list = df_stocks["Name"]
+	sector_list = df_stocks["Sector"]
 	marcap_list = df_stocks["Marcap"]
 	summary_list = []
 	for k in range(len(df_stocks)):
 		try:
 			code = code_list[k]
 			name = name_list[k]
+			sector = sector_list[k]
 			marcap = int(marcap_list[k])
 			price = df_price[code].iloc[-1]
 			print (code, ", ", name, ": Create summary")
@@ -85,7 +87,7 @@ def create_summary(
 			df_highlight = pd.read_csv(highlight_path)
 
 			summary = [
-				date, code, name, marcap, int(price), 
+				date, code, name, sector, marcap, int(price), 
 				df_highlight.iloc[0].iloc[3], df_highlight.iloc[1].iloc[3], df_highlight.iloc[2].iloc[3],
 				df_highlight.iloc[0].iloc[4], df_highlight.iloc[1].iloc[4], df_highlight.iloc[2].iloc[4],
 			]
@@ -98,7 +100,7 @@ def create_summary(
 			print (code, ", ", name, ": Error occured when executing summary")
 
 	columns = [
-		'Date', 'Code', 'Name', 'MarketCap', 'Price',
+		'Date', 'Code', 'Name', 'Sector', 'MarketCap', 'Price',
 		'Sales (2024)', 'OpIncome (2024)', 'NetIncome (2024)',
 		'Sales (2025)', 'OpIncome (2025)', 'NetIncome (2025)',
 		'FY-PER', 'FY-PBR', 'FY-ROE',
@@ -108,6 +110,9 @@ def create_summary(
 	df_summary = pd.DataFrame(summary_list, columns=columns)
 
 	df_summary = df_summary.dropna(subset=['FY-PER', 'FY-PBR'])
+	condition = (df_summary['FY-PER'] > 0.0)
+	df_summary = df_summary[condition]
+	df_summary = df_summary.sort_values(by=['Sector', 'FY-PER'], ascending=True)
 	summary_path = os.path.join(os.getcwd(), 'data', 'summary', date+'.csv')
 	df_summary.to_csv(summary_path, index=False)
 	print (tabulate(df_summary, headers='keys', showindex=True))

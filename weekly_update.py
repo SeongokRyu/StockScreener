@@ -243,7 +243,7 @@ def main(args):
 		print (tabulate(df_analysis, headers='keys', showindex=True))
 
 	
-		if key == 'daily':
+		if key == 'weekly':
 			df_analysis = df_analysis.sort_values(by=['MeanChange'], ascending=False)
 			for k in range(args.num_sectors):
 				sector = df_analysis.iloc[k]['Sector']

@@ -22,6 +22,19 @@ from libs.utils import get_code_list
 from libs.utils import SECTOR_LIST
 
 
+def add_change_column(
+		df_stocks,
+		df_change,
+		column_name,
+	):
+	code_list = get_code_list(df_stocks)
+	df_change = df_change[['Date',]+code_list]
+	change_list = list(df_change.iloc[-1])[1:]
+
+	df_stocks[column_name] = change_list
+	return df_stocks
+
+
 def change_analysis_by_sector(
 		df_stocks,
 		df_change,
@@ -127,6 +140,12 @@ def tabulate_stocks_in_specific_sector(
 		sector,
 		max_num_stocks,
 	):
+	change_column_list = [
+		'Change1D',
+		'Change1W',
+		'Change1M',
+		'Change6M',
+	]
 	condition = (df_stocks['Sector'] == sector)
 	df_ = df_stocks[condition]
 	df_['Sector'] = [sector for _ in range(len(df_))]
@@ -137,11 +156,14 @@ def tabulate_stocks_in_specific_sector(
 	columns = [
 		'Name',
 		'Sector',
-		'Change',
+		'DAILY',
+		'WEEKLY',
+		'MONTHLY',
+		'HALF-YEAR',
 		'Amount',
 		'Marcap',
 	]
-	df_ = df_.sort_values(by=['Change'], ascending=False)
+	df_ = df_.sort_values(by=['DAILY'], ascending=False)
 	df_ = df_[columns]
 	df_["Amount"] = df_["Amount"].astype(int) // 100000000
 	df_["Marcap"] = df_["Marcap"].astype(int) // 100000000
@@ -150,7 +172,10 @@ def tabulate_stocks_in_specific_sector(
 	rename_dict = {
 		'Name': '종목',
 		'Sector': '섹터',
-		'Change': '등락율 (%)',
+		'DAILY': '등락율1D (%)',
+		'WEEKLY': '등락율1W (%)',
+		'MONTHLY': '등락율1M (%)',
+		'HALF-YEAR': '등락율6M (%)',
 		'Amount': '거래대금 (억 원)',
 		'Marcap': '시가총액 (억 원)',
 	}
@@ -206,21 +231,29 @@ def main(args):
 	price_path = os.path.join(os.getcwd(), 'data', 'price', 'recent.csv')
 	df_price = pd.read_csv(price_path)
 
-
 	df_stocks, df_price = edit_(
 		df_stocks=df_stocks,
 		df_price=df_price,
 	)
 
+	analysis_list = []
 	interval_dict = {
 		'daily': 1,
 		'weekly': 5,
 		'monthly': 20,
+		'half-year': 120,
 		#'yearly': 240,
 	}
+	analysis_list = []
 	for key in interval_dict.keys():
 		interval = interval_dict[key]
 		df_change = calc_price_change(df=df_price, interval=interval)
+		df_stocks = add_change_column(
+			df_stocks=df_stocks,
+			df_change=df_change,
+			column_name=key.upper(),
+		)
+
 		df_analysis = change_analysis_by_sector(
 			df_stocks=df_stocks, 
 			df_change=df_change, 
@@ -241,10 +274,14 @@ def main(args):
 		)
 		print (key.upper())
 		print (tabulate(df_analysis, headers='keys', showindex=True))
-
+		analysis_list.append(df_analysis.sort_values(by=['Sector']))
 	
+		'''
 		if key == 'daily':
 			df_analysis = df_analysis.sort_values(by=['MeanChange'], ascending=False)
+			num_sectors = args.num_sectors
+			if args.num_sectors == -1:
+				num_sectors = len(df_analysis)
 			for k in range(args.num_sectors):
 				sector = df_analysis.iloc[k]['Sector']
 				tabulate_stocks_in_specific_sector(
@@ -252,9 +289,32 @@ def main(args):
 					sector=sector,
 					max_num_stocks=args.max_num_stocks,
 				)
+		'''
 
-	#for sector in list(set(df_stocks['Sector'])):
-	#	print (sector)
+	change_ = list(np.asarray(analysis_list[3]['MeanChange']) - np.asarray(analysis_list[2]['MeanChange']))
+	sector_ = analysis_list[2]['Sector']
+	df_momentum = pd.DataFrame({})
+	df_momentum['Sector'] = sector_
+	df_momentum['MeanChange'] = change_
+	df_momentum = df_momentum.sort_values(by=['MeanChange'], ascending=False)
+	print (tabulate(df_momentum, headers='keys', showindex=True))
+
+	plot_analysis_by_change(
+		df=df_momentum,
+		date=today,
+		interval='6M-1M',
+	)
+	num_sectors = args.num_sectors
+	if args.num_sectors == 99:
+		num_sectors = len(df_momentum)
+	for k in range(num_sectors):
+		sector = df_momentum.iloc[k]['Sector']
+		tabulate_stocks_in_specific_sector(
+			df_stocks=df_stocks,
+			sector=sector,
+			max_num_stocks=args.max_num_stocks,
+		)
+
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()

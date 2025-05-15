@@ -211,9 +211,9 @@ def main(args):
 
 	interval_dict = {
 		'daily': 1,
-		#'weekly': 5,
-		#'monthly': 20,
-		#'yearly': 240,
+		'weekly': 5,
+		'monthly': 20,
+		'yearly': 240,
 	}
 	for key in interval_dict.keys():
 		interval = interval_dict[key]
@@ -240,7 +240,7 @@ def main(args):
 		print (tabulate(df_analysis, headers='keys', showindex=True))
 
 	
-		if key == 'daily':
+		if key == 'weekly':
 			df_analysis = df_analysis.sort_values(by=['MeanChange'], ascending=False)
 			for k in range(args.num_sectors):
 				sector = df_analysis.iloc[k]['Sector']

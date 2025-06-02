@@ -109,7 +109,7 @@ def add_sector_column(df_stocks):
 		'Close', 'ChangeCode', 'Changes', 'ChagesRatio', 
 		'Open', 'High', 'Low', 'Volume', 
 		'Amount', 'Marcap', 
-		'Stocks', 'MarketId', 'Sector',
+		'Stocks', 'MarketId',
 	]
 	df_stocks = df_stocks[columns]
 
@@ -143,6 +143,7 @@ def canonical_update(
 
 	clean_path = os.path.join(os.getcwd(), 'data', 'stocks', 'recent_clean.csv')
 	df_stocks = pd.read_csv(clean_path)
+	print (df_stocks)
 	df_stocks = add_sector_column(df_stocks=df_stocks)
 	df_stocks.to_csv(clean_path, index=False)
 

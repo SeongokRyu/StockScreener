@@ -12,11 +12,11 @@ SECTOR_LIST = [
 	'보험', '은행', '증권', '창업투자/VC', '기타금융',
 	'자동차', '자동차 부품',
 	'정유/화학/가스', '철강/비철금속',
-	'조선/기계/중공업', '방위산업',
+	'조선/기계/중공업', '방위산업', '로봇',
 	'신재생에너지', '원자력', '전력기기',
-	'운송/항공/물류',
+	'운송/항공/물류', '여행', '호텔/카지노',
 	'건설', '건자재', '홈리빙/가구',
-	'음식료', '유통', '필수소비재', '유통/소매', '의류',
+	'음식료', '유통', '필수소비재', '소매판매', '의류',
 	'바이오/제약/신약개발', '헬스케어', '진단기기/의료기기', 
 	'화장품', '미용기기', 
 	'엔터테인먼트', '미디어',
@@ -152,3 +152,34 @@ def clean_stock_list(df):
 	mask = ~df["Dept"].fillna("").str.contains(r"(SPAC|관리종목)", case=False)
 	df = df[mask].reset_index(drop=True)
 	return df
+
+
+def edit_stocks_and_price(
+		df_stocks,
+		df_price,
+	):
+	code_stocks = get_code_list(df_stocks)
+	df_stocks['Code'] = code_stocks
+	code_price = list(df_price.columns)[1:]
+	code_common = list(set(code_stocks) & set(code_price))
+
+	condition = (df_stocks['Code'].isin(code_common))
+	#df_stocks = df_stocks[condition].sort_values(by=['Code']).reset_index()
+	df_stocks = df_stocks[condition].sort_values(by=['Code'])
+
+	code_common = list(df_stocks['Code'])
+	df_price = df_price[['Date',] + code_common]
+	return df_stocks, df_price
+
+
+def add_change_column(
+		df_stocks,
+		df_change,
+		column_name,
+	):
+	code_list = get_code_list(df_stocks)
+	df_change = df_change[['Date',]+code_list]
+	change_list = list(df_change.iloc[-1])[1:]
+
+	df_stocks[column_name] = change_list
+	return df_stocks

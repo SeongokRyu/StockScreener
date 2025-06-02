@@ -19,20 +19,9 @@ from libs.calculator import calc_price_change
 from libs.utils import convert_sector_eng_to_kor
 from libs.utils import filter_by_market_cap
 from libs.utils import get_code_list
+from libs.utils import edit_stocks_and_price
 from libs.utils import SECTOR_LIST
-
-
-def add_change_column(
-		df_stocks,
-		df_change,
-		column_name,
-	):
-	code_list = get_code_list(df_stocks)
-	df_change = df_change[['Date',]+code_list]
-	change_list = list(df_change.iloc[-1])[1:]
-
-	df_stocks[column_name] = change_list
-	return df_stocks
+from libs.utils import add_change_column
 
 
 def change_analysis_by_sector(
@@ -135,6 +124,48 @@ def plot_analysis_by_change(
 	return
 
 
+def plot_change_2d_scatter(
+		df1,
+		df2,
+		date,
+		xlabel,
+		ylabel,
+	):
+	df1 = df1.dropna(subset=['MeanChange'])
+
+	sector_tmp = list(df1['Sector'])
+	condition = (df2['Sector'].isin(sector_tmp))
+	df2 = df2[condition]
+
+	df1 = df1.sort_values(by=['Sector']).reset_index()
+	df2 = df2.sort_values(by=['Sector']).reset_index()
+
+	sector_list = list(df1['Sector'])
+	change1 = df1['MeanChange']
+	change2 = df2['MeanChange']
+
+	plt.figure(figsize=(20,15))
+	plt.title(xlabel + ' & ' + ylabel + ' 상승률 Scatter Plot', fontsize=25)
+	plt.scatter(change1, change2, s=20)
+
+	for idx, sector in enumerate(sector_list):
+		plt.annotate(sector, (change1[idx], change2[idx]), textcoords="offset points", xytext=(5,5), ha='left', fontsize=18)
+
+	plt.axhline(0, color='black', linewidth=1.5, zorder=1) # Horizontal line at y=0
+	plt.axvline(0, color='black', linewidth=1.5, zorder=1) # Vertical line at x=0
+
+	plt.xlabel(xlabel + ' 상승률', fontsize=25)
+	plt.ylabel(ylabel + ' 상승률', fontsize=25)
+	plt.xticks(fontsize=18)
+	plt.yticks(fontsize=18)
+	plt.grid(True)
+	plt.tight_layout()
+
+	fig_path = os.path.join(os.getcwd(), 'data', 'sector_change', date+'_'+xlabel+'-'+ylabel+'_scatter.png')
+	plt.savefig(fig_path)
+
+
+
 def tabulate_stocks_in_specific_sector(
 		df_stocks,
 		sector,
@@ -184,7 +215,7 @@ def tabulate_stocks_in_specific_sector(
 	print (tabulate(df_, headers='keys', showindex=True))
 
 
-def edit_(
+def edit_stocks_and_price(
 		df_stocks,
 		df_price,
 	):
@@ -203,9 +234,14 @@ def edit_(
 
 
 def main(args):
-	now = datetime.datetime.now()
-	before = '-'.join([str(now.year-1), str(now.month-1), str(now.day)])
-	today = '-'.join([str(now.year), str(now.month), str(now.day)])
+	before, today = '', ''
+	if (args.before is None) or (args.today is None):
+		now = datetime.datetime.now()
+		before = '-'.join([str(now.year-1), str(now.month-1), str(now.day)])
+		today = '-'.join([str(now.year), str(now.month), str(now.day)])
+	else:
+		before = args.before
+		today = args.today
 
 	if args.update_list or args.update_price or args.update_highlight:
 		canonical_update(
@@ -231,7 +267,7 @@ def main(args):
 	price_path = os.path.join(os.getcwd(), 'data', 'price', 'recent.csv')
 	df_price = pd.read_csv(price_path)
 
-	df_stocks, df_price = edit_(
+	df_stocks, df_price = edit_stocks_and_price(
 		df_stocks=df_stocks,
 		df_price=df_price,
 	)
@@ -314,10 +350,34 @@ def main(args):
 			sector=sector,
 			max_num_stocks=args.max_num_stocks,
 		)
-
+	
+	plot_change_2d_scatter(
+		df1=analysis_list[3],
+		df2=analysis_list[2],
+		date=today,
+		xlabel='6M',
+		ylabel='1M',
+	)
+	plot_change_2d_scatter(
+		df1=analysis_list[2],
+		df2=analysis_list[1],
+		date=today,
+		xlabel='1M',
+		ylabel='1W',
+	)
+	plot_change_2d_scatter(
+		df1=analysis_list[1],
+		df2=analysis_list[0],
+		date=today,
+		xlabel='1W',
+		ylabel='1D',
+	)
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
+	parser.add_argument("-b", "--before", type=str, default=None)
+	parser.add_argument("-t", "--today", type=str, default=None)
+
 	parser.add_argument("--update_list", action="store_true")
 	parser.add_argument("--update_price", action="store_true")
 	parser.add_argument("--update_highlight", action="store_true")

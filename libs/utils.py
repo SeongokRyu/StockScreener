@@ -143,6 +143,16 @@ def filter_by_market_cap(df, threshold=1000, divide=True):
 	return df
 
 
+def filter_by_volume(df, threshold=10, divide=True):
+	if divide:
+		df["Amount"] = df["Amount"].astype(int) // 100000000
+	else:
+		df["Amount"] = df["Amount"].astype(int)
+	condition = (df["Amount"] >= threshold)
+	df = df[condition]
+	return df
+
+
 def clean_stock_list(df):
 	# 보통주만 선택
 	df["Code"] = df["Code"].astype(str).str.zfill(6)

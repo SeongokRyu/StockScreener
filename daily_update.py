@@ -271,6 +271,7 @@ def main(args):
 		df_stocks=df_stocks,
 		df_price=df_price,
 	)
+	print (df_price)
 
 	analysis_list = []
 	interval_dict = {
@@ -329,6 +330,7 @@ def main(args):
 
 	change_ = list(np.asarray(analysis_list[3]['MeanChange']) - np.asarray(analysis_list[2]['MeanChange']))
 	sector_ = analysis_list[2]['Sector']
+
 	df_momentum = pd.DataFrame({})
 	df_momentum['Sector'] = sector_
 	df_momentum['MeanChange'] = change_
@@ -340,11 +342,13 @@ def main(args):
 		date=today,
 		interval='6M-1M',
 	)
+	analysis_list.append(df_momentum)
+
 	num_sectors = args.num_sectors
 	if args.num_sectors == 99:
-		num_sectors = len(df_momentum)
+		num_sectors = len(analysis_list[args.tabulate_idx])
 	for k in range(num_sectors):
-		sector = df_momentum.iloc[k]['Sector']
+		sector = analysis_list[args.tabulate_idx].iloc[k]['Sector']
 		tabulate_stocks_in_specific_sector(
 			df_stocks=df_stocks,
 			sector=sector,
@@ -387,6 +391,7 @@ if __name__ == '__main__':
 
 	parser.add_argument("--use_fics", action="store_true")
 
+	parser.add_argument("--tabulate_idx", type=int, default=0)
 	parser.add_argument("--num_sectors", type=int, default=10)
 	parser.add_argument("--max_num_stocks", type=int, default=20)
 	args = parser.parse_args()

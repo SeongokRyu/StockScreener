@@ -52,8 +52,8 @@ def main(args):
 	macd_df['Prev_MACD'] = macd_df['MACD'].shift(1)
 	macd_df['Prev_Histogram'] = macd_df['Histogram'].shift(1)
 
-	example_macd_thresh = (macd_df['Price'].mean() * 0.001) if not macd_df['Price'].empty else 0.05 # 예시: 평균 주가의 0.1%
-	example_hist_thresh = (macd_df['Price'].mean() * 0.0005) if not macd_df['Price'].empty else 0.01 # 예시: 평균 주가의 0.05%
+	example_macd_thresh = (macd_df['Price'].mean() * args.macd_threshold) if not macd_df['Price'].empty else 0.05 # 예시: 평균 주가의 0.1%
+	example_hist_thresh = (macd_df['Price'].mean() * args.hist_threshold) if not macd_df['Price'].empty else 0.01 # 예시: 평균 주가의 0.05%
 
 	categories = []
 	for i in range(len(macd_df)):
@@ -83,6 +83,8 @@ def main(args):
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--code_", type=str, default=None)
+	parser.add_argument("--macd_threshold", type=str, default=0.001)
+	parser.add_argument("--hist_threshold", type=str, default=0.0001)
 	args = parser.parse_args()
 
 	main(args)
